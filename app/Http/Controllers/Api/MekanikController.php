@@ -8,16 +8,11 @@ use Illuminate\Http\Request;
 
 class MekanikController extends Controller
 {
-    // Lihat semua data
     public function index()
     {
-        return response()->json([
-            'success' => true,
-            'data' => Mekanik::all(),
-        ]);
+        return Mekanik::all();
     }
 
-    // Tambah data baru
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -34,44 +29,17 @@ class MekanikController extends Controller
             'Updated_by'             => 'nullable|string|max:255',
         ]);
 
-        $mekanik = Mekanik::create($data);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Mekanik berhasil ditambahkan',
-            'data' => $mekanik,
-        ], 201);
+        return response()->json(Mekanik::create($data), 201);
     }
 
-    // Lihat satu data berdasarkan id
-    public function show(string $id)
+    public function show($id)
     {
-        $mekanik = Mekanik::find($id);
-
-        if (!$mekanik) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Mekanik tidak ditemukan',
-            ], 404);
-        }
-
-        return response()->json([
-            'success' => true,
-            'data' => $mekanik,
-        ]);
+        return Mekanik::findOrFail($id);
     }
 
-    // Ubah data
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        $mekanik = Mekanik::find($id);
-
-        if (!$mekanik) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Mekanik tidak ditemukan',
-            ], 404);
-        }
+        $mekanik = Mekanik::findOrFail($id);
 
         $data = $request->validate([
             'Nama_mecanic'           => 'sometimes|required|string|max:255',
@@ -87,30 +55,14 @@ class MekanikController extends Controller
 
         $mekanik->update($data);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Mekanik berhasil diubah',
-            'data' => $mekanik,
-        ]);
+        return $mekanik;
     }
 
-    // Hapus data
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        $mekanik = Mekanik::find($id);
-
-        if (!$mekanik) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Mekanik tidak ditemukan',
-            ], 404);
-        }
-
+        $mekanik = Mekanik::findOrFail($id);
         $mekanik->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Mekanik berhasil dihapus',
-        ]);
+        return response()->noContent();
     }
 }

@@ -8,71 +8,39 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    // Lihat semua data
     public function index()
     {
-        return response()->json([
-            'success' => true,
-            'data' => User::all(),
-        ]);
+        return User::all();
     }
 
-    // Tambah data baru
     public function store(Request $request)
     {
         $data = $request->validate([
             'id'           => 'required|string|max:100|unique:users,id',
             'username'     => 'required|string|max:255|unique:users,username',
             'nama_lengkap' => 'required|string|max:255',
-            'email'        => 'required|email|max:255|unique:users,email',
+            'email'        => 'required|string|email|max:255|unique:users,email',
             'no_hp'        => 'nullable|string|max:255',
             'password'     => 'required|string|min:6',
             'role'         => 'nullable|string|max:255',
         ]);
 
-        $user = User::create($data);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'User berhasil ditambahkan',
-            'data' => $user,
-        ], 201);
+        return response()->json(User::create($data), 201);
     }
 
-    // Lihat satu data berdasarkan id
-    public function show(string $id)
+    public function show($id)
     {
-        $user = User::find($id);
-
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User tidak ditemukan',
-            ], 404);
-        }
-
-        return response()->json([
-            'success' => true,
-            'data' => $user,
-        ]);
+        return User::findOrFail($id);
     }
 
-    // Ubah data
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        $user = User::find($id);
-
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User tidak ditemukan',
-            ], 404);
-        }
+        $user = User::findOrFail($id);
 
         $data = $request->validate([
-            'username'     => 'sometimes|required|string|max:255|unique:users,username,' . $id . ',id',
+            'username'     => 'sometimes|required|string|max:255|unique:users,username,' . $user->id . ',id',
             'nama_lengkap' => 'sometimes|required|string|max:255',
-            'email'        => 'sometimes|required|email|max:255|unique:users,email,' . $id . ',id',
+            'email'        => 'sometimes|required|string|email|max:255|unique:users,email,' . $user->id . ',id',
             'no_hp'        => 'nullable|string|max:255',
             'password'     => 'sometimes|required|string|min:6',
             'role'         => 'nullable|string|max:255',
@@ -80,30 +48,14 @@ class UserController extends Controller
 
         $user->update($data);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'User berhasil diubah',
-            'data' => $user,
-        ]);
+        return $user;
     }
 
-    // Hapus data
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        $user = User::find($id);
-
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User tidak ditemukan',
-            ], 404);
-        }
-
+        $user = User::findOrFail($id);
         $user->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'User berhasil dihapus',
-        ]);
+        return response()->noContent();
     }
 }
